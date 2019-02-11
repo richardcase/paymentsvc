@@ -1,0 +1,27 @@
+{
+    "ListPayment": {
+        "REGION": "eu-west-2",
+        "DB_TABLE": "payments",
+        "DB_ENDPOINT_OVERRIDE": "http://dynamodb:8000"
+    },
+    "CreatePayment": {
+        "REGION": "eu-west-2",
+        "DB_TABLE": "payments",
+        "DB_ENDPOINT_OVERRIDE": "http://dynamodb:8000"
+    },
+    "GetPayment": {
+        "REGION": "eu-west-2",
+        "DB_TABLE": "payments",
+        "DB_ENDPOINT_OVERRIDE": "http://dynamodb:8000"
+    },
+    "UpdatePayment": {
+        "REGION": "eu-west-2",
+        "DB_TABLE": "payments",
+        "DB_ENDPOINT_OVERRIDE": "http://dynamodb:8000"
+    },
+    "DeletePayment": {
+        "REGION": "eu-west-2",
+        "DB_TABLE": "payments",
+        "DB_ENDPOINT_OVERRIDE": "http://dynamodb:8000"
+    }
+}

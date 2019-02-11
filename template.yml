@@ -1,0 +1,405 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'SAM template for Serverless framework service: '
+Resources:
+  paymentsTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: Payments
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  CreatePayment:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: bin/payments
+      Runtime: go1.x
+      CodeUri: /Users/richardcase/Code/poc/paymentsvc/.serverless/paymentsvc.zip
+      MemorySize: 128
+      Timeout: 30
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:Query'
+                - 'dynamodb:Scan'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:DeleteItem'
+              Resource: 'arn:aws:dynamodb:eu-west-2:*:table/*'
+      Environment:
+        Variables:
+          REGION: eu-west-2
+          DB_TABLE: payments
+      Events:
+        Event1:
+          Type: Api
+          Properties:
+            Path: /payments
+            Method: post
+            RestApiId:
+              Ref: Paymentsvc
+  Paymentsvc:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      StageName: dev
+      DefinitionBody:
+        swagger: '2.0'
+        info:
+          title:
+            Ref: 'AWS::StackName'
+        paths:
+          /payments:
+            options:
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: '{ "statusCode" : 200 }'
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''options,post,get'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}'
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  'Fn::Sub': >-
+                    arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CreatePayment.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''post'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}'
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  'Fn::Sub': >-
+                    arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ListPayment.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''options,post,get'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}'
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+          '/payments/{id}':
+            options:
+              x-amazon-apigateway-integration:
+                type: mock
+                requestTemplates:
+                  application/json: '{ "statusCode" : 200 }'
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''options,get,put,delete'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}'
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  'Fn::Sub': >-
+                    arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${GetPayment.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''get'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}'
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+            put:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  'Fn::Sub': >-
+                    arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${UpdatePayment.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''options,get,put'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}'
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+            delete:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri:
+                  'Fn::Sub': >-
+                    arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DeletePayment.Arn}/invocations
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Headers: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key'''
+                      method.response.header.Access-Control-Allow-Methods: '''options,get,put,delete'''
+                      method.response.header.Access-Control-Allow-Origin: '''*'''
+                    responseTemplates:
+                      application/json: '{}'
+              responses:
+                '200':
+                  headers:
+                    Access-Control-Allow-Headers:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Origin:
+                      type: string
+  CreatePaymentLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
+    DependsOn:
+      - CreatePayment
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName:
+        Ref: CreatePayment
+      Principal: apigateway.amazonaws.com
+  ListPayment:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: bin/payments
+      Runtime: go1.x
+      CodeUri: /Users/richardcase/Code/poc/paymentsvc/.serverless/paymentsvc.zip
+      MemorySize: 128
+      Timeout: 30
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:Query'
+                - 'dynamodb:Scan'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:DeleteItem'
+              Resource: 'arn:aws:dynamodb:eu-west-2:*:table/*'
+      Environment:
+        Variables:
+          REGION: eu-west-2
+          DB_TABLE: payments
+      Events:
+        Event1:
+          Type: Api
+          Properties:
+            Path: /payments
+            Method: get
+            RestApiId:
+              Ref: Paymentsvc
+  ListPaymentLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
+    DependsOn:
+      - ListPayment
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName:
+        Ref: ListPayment
+      Principal: apigateway.amazonaws.com
+  GetPayment:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: bin/payments
+      Runtime: go1.x
+      CodeUri: /Users/richardcase/Code/poc/paymentsvc/.serverless/paymentsvc.zip
+      MemorySize: 128
+      Timeout: 30
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:Query'
+                - 'dynamodb:Scan'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:DeleteItem'
+              Resource: 'arn:aws:dynamodb:eu-west-2:*:table/*'
+      Environment:
+        Variables:
+          REGION: eu-west-2
+          DB_TABLE: payments
+      Events:
+        Event1:
+          Type: Api
+          Properties:
+            Path: '/payments/{id}'
+            Method: get
+            RestApiId:
+              Ref: Paymentsvc
+  GetPaymentLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
+    DependsOn:
+      - GetPayment
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName:
+        Ref: GetPayment
+      Principal: apigateway.amazonaws.com
+  UpdatePayment:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: bin/payments
+      Runtime: go1.x
+      CodeUri: /Users/richardcase/Code/poc/paymentsvc/.serverless/paymentsvc.zip
+      MemorySize: 128
+      Timeout: 30
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:Query'
+                - 'dynamodb:Scan'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:DeleteItem'
+              Resource: 'arn:aws:dynamodb:eu-west-2:*:table/*'
+      Environment:
+        Variables:
+          REGION: eu-west-2
+          DB_TABLE: payments
+      Events:
+        Event1:
+          Type: Api
+          Properties:
+            Path: '/payments/{id}'
+            Method: put
+            RestApiId:
+              Ref: Paymentsvc
+  UpdatePaymentLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
+    DependsOn:
+      - UpdatePayment
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName:
+        Ref: UpdatePayment
+      Principal: apigateway.amazonaws.com
+  DeletePayment:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: bin/payments
+      Runtime: go1.x
+      CodeUri: /Users/richardcase/Code/poc/paymentsvc/.serverless/paymentsvc.zip
+      MemorySize: 128
+      Timeout: 30
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - 'dynamodb:Query'
+                - 'dynamodb:Scan'
+                - 'dynamodb:GetItem'
+                - 'dynamodb:PutItem'
+                - 'dynamodb:UpdateItem'
+                - 'dynamodb:DeleteItem'
+              Resource: 'arn:aws:dynamodb:eu-west-2:*:table/*'
+      Environment:
+        Variables:
+          REGION: eu-west-2
+          DB_TABLE: payments
+      Events:
+        Event1:
+          Type: Api
+          Properties:
+            Path: '/payments/{id}'
+            Method: delete
+            RestApiId:
+              Ref: Paymentsvc
+  DeletePaymentLambdaPermission:
+    Type: 'AWS::Lambda::Permission'
+    DependsOn:
+      - DeletePayment
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName:
+        Ref: DeletePayment
+      Principal: apigateway.amazonaws.com

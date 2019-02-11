@@ -1,0 +1,21 @@
+{
+    "attributes": {
+        "amount": 500,
+        "currency": "GBP",
+        "payment_type": "Credit",
+        "payment_scheme": "FPS",
+        "beneficiary_party": {
+            "account_name": "Test 1",
+            "account_number": "123456"
+        },
+        "debtor_party": {
+            "account_name": "Test 2",
+            "account_number": "67890"
+        }
+    },
+    "id": "cae9aa62-0ea1-432b-baee-c0ff4b1d889e",
+    "organisation_id": "00000000-0000-0000-0000-000000000000",
+    "version": 2,
+    "created_at": "0001-01-01T00:00:00Z",
+    "updated_at": "0001-01-01T00:00:00Z"
+}

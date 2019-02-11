@@ -1,0 +1,83 @@
+
+service: paymentsvc 
+
+frameworkVersion: ">=1.28.0 <2.0.0"
+
+plugins:
+  - serverless-sam
+
+provider:
+  name: aws
+  runtime: go1.x
+  region: eu-west-2
+  environment:
+    REGION: eu-west-2
+    DB_TABLE: payments
+  iamRoleStatements:
+  - Effect: Allow
+    Action:
+      - dynamodb:Query
+      - dynamodb:Scan
+      - dynamodb:GetItem
+      - dynamodb:PutItem
+      - dynamodb:UpdateItem
+      - dynamodb:DeleteItem
+    Resource: "arn:aws:dynamodb:eu-west-2:*:table/*"
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./bin/**
+
+functions:
+  createPayment:
+    handler: bin/payments
+    events:
+      - http:
+          path: payments
+          method: post
+          cors: true
+  listPayment:
+    handler: bin/payments
+    events:
+      - http:
+          path: payments
+          method: get
+          cors: true
+  getPayment:
+    handler: bin/payments
+    events:
+      - http:
+          path: payments/{id}
+          method: get
+          cors: true
+  updatePayment:
+    handler: bin/payments
+    events:
+      - http:
+          path: payments/{id}
+          method: put
+          cors: true
+  deletePayment:
+    handler: bin/payments
+    events:
+      - http:
+          path: payments/{id}
+          method: delete
+          cors: true
+resources:
+  Resources:
+    paymentsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Payments
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
