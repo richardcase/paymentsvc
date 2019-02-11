@@ -23,7 +23,7 @@ jobs:
             /go/bin/goveralls -coverprofile=coverage.out -service=circle-ci
       - run:
           name: Run build
-          command: make release
+          command: make build
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
